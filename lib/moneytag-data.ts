@@ -246,9 +246,9 @@ export function getCategoryColor(category: SpendCategory): string {
     "Direct Payments": "#00FF41",
     "Grants": "#ffcc00",
     "Loans": "#ff6600",
-    "Other": "#666666",
+    "Other": "#8888aa",
     "Admin": "#FF3131",
-    "Unknown": "#666666",
+    "Unknown": "#8888aa",
   }
   return colors[category]
 }
@@ -330,7 +330,7 @@ export function buildSubAgencyNodes(
       amount: sa.total_obligations,
       depth: 2,
       type: "sub-agency" as NodeType,
-      parentTrail: [...parentNode.parentTrail, parentNode.sourceCode],
+      parentTrail: [...parentNode.parentTrail, parentNode.name],
       status: (sa.total_obligations > 0 ? "verified" : "flagged") as NodeStatus,
       abbreviation: sa.abbreviation || undefined,
       percentOfParent: parentNode.amount > 0 ? (Math.abs(sa.total_obligations) / parentNode.amount) * 100 : 0,
@@ -350,9 +350,9 @@ export function buildBudgetFunctionNodes(
     .map((bf) => {
       const category = categorizeBudgetFunction(bf.name)
       const isAdmin = category === "Admin"
-      const bfCode = `BF-${bf.code}`
+      const bfCode = bf.code ? `BF-${bf.code}` : `BF-${bf.name.slice(0, 8)}`
       return {
-        id: `bf-${parentNode.toptierCode}-${bf.code}`,
+        id: `bf-${parentNode.toptierCode}-${bf.code || bf.name.slice(0, 12)}`,
         name: bf.name,
         sourceCode: bfCode,
         sourceUrl: parentNode.sourceUrl,
@@ -361,7 +361,7 @@ export function buildBudgetFunctionNodes(
         depth: 2,
         type: "budget-function" as NodeType,
         category,
-        parentTrail: [...parentNode.parentTrail, parentNode.sourceCode],
+        parentTrail: [...parentNode.parentTrail, parentNode.name],
         status: (isAdmin ? "flagged" : bf.obligated_amount > 0 ? "verified" : "pending") as NodeStatus,
         percentOfParent: parentNode.amount > 0 ? (Math.abs(bf.obligated_amount) / parentNode.amount) * 100 : 0,
         isExpandable: bf.children && bf.children.length > 0,
@@ -372,16 +372,16 @@ export function buildBudgetFunctionNodes(
           .map((sub) => {
             const subCat = categorizeBudgetFunction(sub.name)
             return {
-              id: `bsf-${parentNode.toptierCode}-${sub.code}`,
+              id: `bsf-${parentNode.toptierCode}-${sub.code || sub.name.slice(0, 12)}`,
               name: sub.name,
-              sourceCode: `BSF-${sub.code}`,
+              sourceCode: sub.code ? `BSF-${sub.code}` : `BSF-${sub.name.slice(0, 8)}`,
               sourceUrl: parentNode.sourceUrl,
               amount: sub.obligated_amount,
               outlayAmount: sub.gross_outlay_amount,
               depth: 3,
               type: "terminal" as NodeType,
               category: subCat,
-              parentTrail: [...parentNode.parentTrail, parentNode.sourceCode, bfCode],
+              parentTrail: [...parentNode.parentTrail, parentNode.name, bf.name],
               status: (subCat === "Admin" ? "flagged" : sub.obligated_amount > 0 ? "verified" : "pending") as NodeStatus,
               percentOfParent: bf.obligated_amount > 0 ? (Math.abs(sub.obligated_amount) / Math.abs(bf.obligated_amount)) * 100 : 0,
               isExpandable: false,
@@ -410,7 +410,7 @@ export function buildFederalAccountNodes(
         outlayAmount: fa.gross_outlay_amount,
         depth: 2,
         type: "federal-account" as NodeType,
-        parentTrail: [...parentNode.parentTrail, parentNode.sourceCode],
+        parentTrail: [...parentNode.parentTrail, parentNode.name],
         status: (fa.obligated_amount > 0 ? "verified" : "pending") as NodeStatus,
         percentOfParent: parentNode.amount > 0 ? (Math.abs(fa.obligated_amount) / parentNode.amount) * 100 : 0,
         isExpandable: fa.children && fa.children.length > 0,
@@ -427,7 +427,7 @@ export function buildFederalAccountNodes(
             outlayAmount: ta.gross_outlay_amount,
             depth: 3,
             type: "treasury-account" as NodeType,
-            parentTrail: [...parentNode.parentTrail, parentNode.sourceCode, faCode],
+            parentTrail: [...parentNode.parentTrail, parentNode.name, fa.name],
             status: (ta.obligated_amount > 0 ? "verified" : "pending") as NodeStatus,
             percentOfParent: fa.obligated_amount > 0 ? (Math.abs(ta.obligated_amount) / Math.abs(fa.obligated_amount)) * 100 : 0,
             isExpandable: false,

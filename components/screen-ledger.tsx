@@ -260,21 +260,19 @@ function DetailModal({ node, onClose }: { node: LedgerNode; onClose: () => void 
             </div>
           )}
 
-          {/* Funding path (real labels) */}
+          {/* Money trail */}
           <div className="space-y-1">
-            <span className="font-mono text-[10px] tracking-wider text-muted-foreground">FUNDING PATH</span>
-            <div className="space-y-1 border border-border bg-secondary/50 p-3">
+            <span className="font-mono text-[10px] tracking-wider text-muted-foreground">MONEY TRAIL</span>
+            <div className="space-y-1.5 border border-border bg-secondary/50 p-3">
               {node.parentTrail.map((label, i) => (
                 <div key={i} className="flex items-center gap-2">
-                  <span className="font-mono text-[10px] text-muted-foreground">D{i}</span>
-                  <ChevronRight className="h-3 w-3 text-muted-foreground" />
-                  <code className="font-mono text-[10px] text-foreground">{label}</code>
+                  <ChevronRight className="h-3 w-3 shrink-0 text-muted-foreground" />
+                  <span className="truncate font-mono text-[10px] text-foreground">{label}</span>
                 </div>
               ))}
               <div className="flex items-center gap-2">
-                <span className="font-mono text-[10px] text-primary">D{node.depth}</span>
-                <ChevronRight className="h-3 w-3 text-primary" />
-                <code className="font-mono text-[10px] text-primary">{node.sourceCode}</code>
+                <ChevronRight className="h-3 w-3 shrink-0 text-primary" />
+                <span className="truncate font-mono text-[10px] font-bold text-primary">{node.name}</span>
               </div>
             </div>
           </div>
@@ -313,19 +311,17 @@ function FundingPathTooltip({ node }: { node: LedgerNode }) {
       exit={{ opacity: 0, y: 5 }}
       className="absolute left-0 top-full z-40 mt-2 w-80 border border-border bg-card p-4 shadow-lg md:left-1/2 md:-translate-x-1/2"
     >
-      <span className="font-mono text-[10px] tracking-wider text-primary">FUNDING PATH</span>
-      <div className="mt-2 space-y-1">
+      <span className="font-mono text-[10px] tracking-wider text-primary">MONEY TRAIL</span>
+      <div className="mt-2 space-y-1.5">
         {node.parentTrail.map((label, i) => (
           <div key={i} className="flex items-center gap-2">
-            <span className="font-mono text-[10px] text-muted-foreground">D{i}</span>
-            <div className="h-px flex-1 bg-border" />
-            <code className="font-mono text-[10px] text-foreground">{label}</code>
+            <ChevronRight className="h-2.5 w-2.5 shrink-0 text-muted-foreground" />
+            <span className="truncate font-mono text-[10px] text-foreground">{label}</span>
           </div>
         ))}
         <div className="flex items-center gap-2">
-          <span className="font-mono text-[10px] text-primary">D{node.depth}</span>
-          <div className="h-px flex-1 bg-primary/30" />
-          <code className="font-mono text-[10px] text-primary">{node.sourceCode}</code>
+          <ChevronRight className="h-2.5 w-2.5 shrink-0 text-primary" />
+          <span className="truncate font-mono text-[10px] font-bold text-primary">{node.name}</span>
         </div>
       </div>
     </motion.div>
