@@ -26,8 +26,8 @@ function MoneyLeakAnimation({ totalBudgetLabel }: { totalBudgetLabel: string }) 
   ]
 
   return (
-    <div className="relative h-80 w-full overflow-hidden">
-      <svg viewBox="0 0 600 300" className="h-full w-full" aria-hidden="true">
+    <div className="relative w-full overflow-hidden">
+      <svg viewBox="0 0 600 300" preserveAspectRatio="xMidYMid meet" className="h-auto w-full" aria-hidden="true">
         <defs>
           <pattern id="grid" width="30" height="30" patternUnits="userSpaceOnUse">
             <path d="M 30 0 L 0 0 0 30" fill="none" stroke="rgba(0,255,65,0.04)" strokeWidth="0.5" />
@@ -58,10 +58,10 @@ function MoneyLeakAnimation({ totalBudgetLabel }: { totalBudgetLabel: string }) 
           transition={{ duration: 0.6 }}
         >
           <rect x="30" y="110" width="80" height="56" fill="none" stroke="#00FF41" strokeWidth="1.5" rx="2" />
-          <text x="70" y="134" textAnchor="middle" fill="#00FF41" fontFamily="monospace" fontSize="8" letterSpacing="0.1em">
+          <text x="70" y="134" textAnchor="middle" fill="#00FF41" fontFamily="monospace" fontSize="9" letterSpacing="0.1em">
             U.S. TREASURY
           </text>
-          <text x="70" y="152" textAnchor="middle" fill="#666" fontFamily="monospace" fontSize="7">
+          <text x="70" y="153" textAnchor="middle" fill="#666" fontFamily="monospace" fontSize="8">
             {`FY${fy}`}
           </text>
         </motion.g>
@@ -104,7 +104,7 @@ function MoneyLeakAnimation({ totalBudgetLabel }: { totalBudgetLabel: string }) 
             <rect x={cp.x - 3} y="134" width="6" height="6" fill="#00FF41" rx="1"
               style={{ filter: "drop-shadow(0 0 4px rgba(0,255,65,0.5))" }}
             />
-            <text x={cp.x} y="118" textAnchor="middle" fill="#555" fontFamily="monospace" fontSize="6.5" letterSpacing="0.08em">
+            <text x={cp.x} y="116" textAnchor="middle" fill="#555" fontFamily="monospace" fontSize="8" letterSpacing="0.08em">
               {cp.label}
             </text>
           </motion.g>
@@ -146,7 +146,7 @@ function MoneyLeakAnimation({ totalBudgetLabel }: { totalBudgetLabel: string }) 
           >
             {totalBudgetLabel}
           </text>
-          <text x="300" y="104" textAnchor="middle" fill="#555" fontFamily="monospace" fontSize="7" letterSpacing="0.15em">
+          <text x="300" y="104" textAnchor="middle" fill="#555" fontFamily="monospace" fontSize="8" letterSpacing="0.15em">
             TOTAL BUDGET AUTHORITY
           </text>
         </motion.g>
@@ -158,7 +158,7 @@ function MoneyLeakAnimation({ totalBudgetLabel }: { totalBudgetLabel: string }) 
           transition={{ delay: 1.6, duration: 0.6 }}
         >
           <rect x="520" y="122" width="60" height="32" fill="#050505" stroke="#00FF41" strokeWidth="1.5" rx="2" />
-          <text x="550" y="142" textAnchor="middle" fill="#00FF41" fontFamily="monospace" fontSize="7.5" fontWeight="bold" letterSpacing="0.1em">
+          <text x="550" y="142" textAnchor="middle" fill="#00FF41" fontFamily="monospace" fontSize="9" fontWeight="bold" letterSpacing="0.1em">
             TAGGED
           </text>
         </motion.g>
@@ -169,7 +169,7 @@ function MoneyLeakAnimation({ totalBudgetLabel }: { totalBudgetLabel: string }) 
           animate={{ opacity: 1 }}
           transition={{ delay: 2.5 }}
         >
-          <text x="300" y="230" textAnchor="middle" fill="#333" fontFamily="monospace" fontSize="7" letterSpacing="0.15em">
+          <text x="300" y="230" textAnchor="middle" fill="#333" fontFamily="monospace" fontSize="8" letterSpacing="0.12em">
             MONEYTAG — TRACKING EVERY DOLLAR FROM APPROPRIATION TO EXPENDITURE
           </text>
           <motion.rect
@@ -220,6 +220,102 @@ function LiveStats() {
     )
   }
 
+  const obligatedPct = stats.obligatedPercent
+  const unobligatedPct = stats.unobligatedPercent
+
+  // SVG donut arc path helper (radius 18, center 24,24)
+  const donutArc = (pct: number) => {
+    const r = 18
+    const cx = 24
+    const cy = 24
+    const angle = (Math.min(pct, 99.99) / 100) * 360
+    const rad = (angle - 90) * (Math.PI / 180)
+    const x = cx + r * Math.cos(rad)
+    const y = cy + r * Math.sin(rad)
+    const large = angle > 180 ? 1 : 0
+    return `M ${cx} ${cy - r} A ${r} ${r} 0 ${large} 1 ${x} ${y}`
+  }
+
+  const miniCharts: Record<string, React.ReactNode> = {
+    "TOTAL BUDGET AUTHORITY": (
+      <svg width="50" height="10" viewBox="0 0 50 10" aria-hidden="true" className="mt-1">
+        <rect x="0" y="2" width="50" height="6" rx="1" fill="#00FF4115" />
+        <motion.rect
+          x="0" y="2" width="50" height="6" rx="1" fill="#00FF41"
+          initial={{ scaleX: 0 }}
+          whileInView={{ scaleX: 1 }}
+          transition={{ duration: 1, delay: 0.3, ease: "easeOut" }}
+          viewport={{ once: true }}
+          style={{ transformOrigin: "0 5px", filter: "drop-shadow(0 0 3px rgba(0,255,65,0.4))" }}
+        />
+      </svg>
+    ),
+    "TOTAL OBLIGATED": (
+      <svg width="48" height="48" viewBox="0 0 48 48" aria-hidden="true" className="mt-1">
+        <circle cx="24" cy="24" r="18" fill="none" stroke="#00FF4115" strokeWidth="3.5" />
+        <motion.path
+          d={donutArc(obligatedPct)}
+          fill="none" stroke="#00FF41" strokeWidth="3.5" strokeLinecap="round"
+          initial={{ pathLength: 0 }}
+          whileInView={{ pathLength: 1 }}
+          transition={{ duration: 1.2, delay: 0.3, ease: "easeOut" }}
+          viewport={{ once: true }}
+          style={{ filter: "drop-shadow(0 0 3px rgba(0,255,65,0.4))" }}
+        />
+        <text x="24" y="26" textAnchor="middle" fill="#00FF41" fontFamily="monospace" fontSize="8" fontWeight="bold">
+          {Math.round(obligatedPct)}%
+        </text>
+      </svg>
+    ),
+    "UNOBLIGATED FUNDS": (
+      <svg width="48" height="48" viewBox="0 0 48 48" aria-hidden="true" className="mt-1">
+        <circle cx="24" cy="24" r="18" fill="none" stroke="#FF313115" strokeWidth="3.5" />
+        <motion.path
+          d={donutArc(unobligatedPct)}
+          fill="none" stroke="#FF3131" strokeWidth="3.5" strokeLinecap="round"
+          initial={{ pathLength: 0 }}
+          whileInView={{ pathLength: 1 }}
+          transition={{ duration: 1.2, delay: 0.3, ease: "easeOut" }}
+          viewport={{ once: true }}
+          style={{ filter: "drop-shadow(0 0 3px rgba(255,49,49,0.4))" }}
+        />
+        <text x="24" y="26" textAnchor="middle" fill="#FF3131" fontFamily="monospace" fontSize="8" fontWeight="bold">
+          {Math.round(unobligatedPct)}%
+        </text>
+      </svg>
+    ),
+    "ACTIVE AGENCIES": (
+      <svg width="50" height="40" viewBox="0 0 50 40" aria-hidden="true" className="mt-1">
+        {[
+          { x: 4, h: 18 },
+          { x: 14, h: 28 },
+          { x: 24, h: 22 },
+          { x: 34, h: 34 },
+          { x: 44, h: 14 },
+        ].map((bar, i) => (
+          <motion.rect
+            key={bar.x}
+            x={bar.x - 3}
+            y={40 - bar.h}
+            width="6"
+            height={bar.h}
+            rx="1"
+            fill="#00FF41"
+            initial={{ scaleY: 0 }}
+            whileInView={{ scaleY: 1 }}
+            transition={{ duration: 0.5, delay: 0.2 + i * 0.08, ease: "easeOut" }}
+            viewport={{ once: true }}
+            style={{
+              transformOrigin: `${bar.x}px 40px`,
+              filter: "drop-shadow(0 0 2px rgba(0,255,65,0.3))",
+              opacity: 0.7 + i * 0.06,
+            }}
+          />
+        ))}
+      </svg>
+    ),
+  }
+
   const statItems = [
     { value: formatLargeCurrency(stats.totalBudget), label: "TOTAL BUDGET AUTHORITY", color: "text-primary", glow: "glow-green" },
     { value: formatLargeCurrency(stats.totalObligated), label: "TOTAL OBLIGATED", color: "text-primary", glow: "glow-green" },
@@ -242,9 +338,171 @@ function LiveStats() {
             {stat.value}
           </span>
           <span className="font-mono text-[9px] tracking-[0.2em] text-muted-foreground md:text-[10px]">{stat.label}</span>
+          {miniCharts[stat.label]}
         </motion.div>
       ))}
     </div>
+  )
+}
+
+const DISTRIBUTION_COLORS = [
+  "#00FF41", // bright green
+  "#00CC66", // emerald
+  "#009980", // teal
+  "#00B88A", // sea green
+  "#33AA55", // forest
+] as const
+
+function BudgetDistributionChart({ agencies }: { agencies: { abbreviation: string; agency_name: string; budget_authority_amount: number }[] }) {
+  const top5 = [...agencies]
+    .filter((a) => a.budget_authority_amount > 0)
+    .sort((a, b) => b.budget_authority_amount - a.budget_authority_amount)
+    .slice(0, 5)
+
+  const total = top5.reduce((sum, a) => sum + a.budget_authority_amount, 0)
+  if (total === 0) return null
+
+  const segments = top5.map((a, i) => ({
+    abbr: a.abbreviation,
+    name: a.agency_name,
+    pct: (a.budget_authority_amount / total) * 100,
+    color: DISTRIBUTION_COLORS[i],
+  }))
+
+  // Build cumulative offsets (as percentages)
+  let cumulative = 0
+  const positioned = segments.map((seg) => {
+    const offset = cumulative
+    cumulative += seg.pct
+    return { ...seg, offset }
+  })
+
+  return (
+    <section className="border-t border-border px-6 py-20">
+      <div className="mx-auto max-w-5xl">
+        <motion.div
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true }}
+          className="mb-10 text-center"
+        >
+          <span className="font-mono text-[10px] tracking-[0.3em] text-primary">TOP 5 AGENCIES BY BUDGET AUTHORITY</span>
+          <h2 className="mt-2 font-mono text-3xl font-bold text-foreground">Budget Distribution by Agency</h2>
+        </motion.div>
+
+        {/* SVG stacked bar */}
+        <div className="mx-auto w-full max-w-4xl">
+          <svg
+            viewBox="0 0 1000 80"
+            preserveAspectRatio="xMidYMid meet"
+            className="h-auto w-full"
+            aria-label="Horizontal stacked bar chart showing top 5 agencies by budget authority"
+            role="img"
+          >
+            <defs>
+              <filter id="barGlow">
+                <feGaussianBlur stdDeviation="2" result="blur" />
+                <feMerge>
+                  <feMergeNode in="blur" />
+                  <feMergeNode in="SourceGraphic" />
+                </feMerge>
+              </filter>
+            </defs>
+
+            {/* Background track */}
+            <rect x="0" y="8" width="1000" height="32" rx="2" fill="#0a0a0a" stroke="#222" strokeWidth="1" />
+
+            {/* Animated segments */}
+            {positioned.map((seg, i) => {
+              const x = (seg.offset / 100) * 1000
+              const w = (seg.pct / 100) * 1000
+              return (
+                <motion.rect
+                  key={seg.abbr}
+                  x={x}
+                  y="8"
+                  width={w}
+                  height="32"
+                  rx={i === 0 ? 2 : 0}
+                  fill={seg.color}
+                  fillOpacity="0.75"
+                  filter="url(#barGlow)"
+                  initial={{ scaleX: 0 }}
+                  whileInView={{ scaleX: 1 }}
+                  transition={{ duration: 0.8, delay: 0.15 * i, ease: "easeOut" }}
+                  viewport={{ once: true }}
+                  style={{ transformOrigin: `${x}px 24px` }}
+                />
+              )
+            })}
+
+            {/* Segment dividers */}
+            {positioned.slice(1).map((seg) => {
+              const x = (seg.offset / 100) * 1000
+              return (
+                <motion.line
+                  key={`div-${seg.abbr}`}
+                  x1={x} y1="8" x2={x} y2="40"
+                  stroke="#0a0a0a" strokeWidth="2"
+                  initial={{ opacity: 0 }}
+                  whileInView={{ opacity: 1 }}
+                  transition={{ delay: 0.9 }}
+                  viewport={{ once: true }}
+                />
+              )
+            })}
+
+            {/* Labels below */}
+            {positioned.map((seg, i) => {
+              const cx = ((seg.offset + seg.pct / 2) / 100) * 1000
+              return (
+                <motion.g
+                  key={`lbl-${seg.abbr}`}
+                  initial={{ opacity: 0, y: 8 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.6 + i * 0.1 }}
+                  viewport={{ once: true }}
+                >
+                  <line x1={cx} y1="40" x2={cx} y2="50" stroke="#333" strokeWidth="1" />
+                  <text
+                    x={cx}
+                    y="62"
+                    textAnchor="middle"
+                    fill={seg.color}
+                    fontFamily="monospace"
+                    fontSize="11"
+                    fontWeight="bold"
+                    letterSpacing="0.05em"
+                  >
+                    {seg.abbr}
+                  </text>
+                  <text
+                    x={cx}
+                    y="76"
+                    textAnchor="middle"
+                    fill="#555"
+                    fontFamily="monospace"
+                    fontSize="9"
+                  >
+                    {seg.pct.toFixed(1)}%
+                  </text>
+                </motion.g>
+              )
+            })}
+          </svg>
+
+          {/* Legend */}
+          <div className="mt-6 flex flex-wrap justify-center gap-x-6 gap-y-2">
+            {segments.map((seg) => (
+              <div key={seg.abbr} className="flex items-center gap-2">
+                <span className="inline-block h-2.5 w-2.5 rounded-sm" style={{ backgroundColor: seg.color, opacity: 0.75 }} />
+                <span className="font-mono text-[10px] tracking-wide text-muted-foreground">{seg.abbr}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
   )
 }
 
@@ -311,7 +569,7 @@ export function ScreenMission({ onNavigate }: ScreenMissionProps) {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.5 }}
-          className="relative z-10 mt-12 w-full max-w-3xl"
+          className="relative z-10 mt-12 mx-auto w-full max-w-3xl px-2 sm:px-0"
         >
           <MoneyLeakAnimation totalBudgetLabel={totalBudgetLabel} />
         </motion.div>
@@ -366,6 +624,9 @@ export function ScreenMission({ onNavigate }: ScreenMissionProps) {
         </div>
         <LiveStats />
       </section>
+
+      {/* Budget Distribution Chart */}
+      {agenciesData?.results && <BudgetDistributionChart agencies={agenciesData.results} />}
 
       {/* CTA Section */}
       <section className="border-t border-border px-6 py-20">

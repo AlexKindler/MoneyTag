@@ -1,13 +1,56 @@
 import { generateText } from "ai"
 import { createOpenAI } from "@ai-sdk/openai"
+import { rateLimit, getClientIp } from "@/lib/rate-limit"
 
 const openai = createOpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 })
 
+// Sanitize user-provided strings to prevent prompt injection and XSS
+function sanitizeInput(input: unknown, maxLength = 200): string {
+  if (typeof input !== "string") return ""
+  return input
+    .replace(/[<>{}]/g, "") // strip HTML/template chars
+    .replace(/[\x00-\x1F\x7F]/g, "") // strip control characters
+    .slice(0, maxLength)
+    .trim()
+}
+
 export async function POST(req: Request) {
+  // Rate limit the explain endpoint
+  const ip = getClientIp(req)
+  const { success } = rateLimit(ip)
+  if (!success) {
+    return Response.json(
+      { blurb: null, error: "Too many requests. Please try again later." },
+      { status: 429 }
+    )
+  }
+
+  if (!process.env.OPENAI_API_KEY) {
+    return Response.json(
+      { blurb: null, error: "OpenAI API key not configured" },
+      { status: 500 }
+    )
+  }
+
   try {
-    const { name, sourceCode, amount, outlayAmount, category, parentTrail, depth } = await req.json()
+    const body = await req.json()
+
+    // Validate and sanitize all inputs
+    const name = sanitizeInput(body.name, 200)
+    const sourceCode = sanitizeInput(body.sourceCode, 50)
+    const category = sanitizeInput(body.category, 50)
+    const depth = typeof body.depth === "number" ? body.depth : -1
+    const amount = typeof body.amount === "number" ? body.amount : 0
+    const outlayAmount = typeof body.outlayAmount === "number" ? body.outlayAmount : null
+    const parentTrail = Array.isArray(body.parentTrail)
+      ? body.parentTrail.map((t: unknown) => sanitizeInput(t, 200)).filter(Boolean).slice(0, 10)
+      : []
+
+    if (!name) {
+      return Response.json({ blurb: null, error: "Invalid input" }, { status: 400 })
+    }
 
     if (depth !== 3) {
       return Response.json({ blurb: null }, { status: 200 })
@@ -43,19 +86,15 @@ ${formattedOutlay ? `- Outlayed Amount: ${formattedOutlay}` : ""}
 
 Write a concise but informative explanation (3-4 sentences, no bullet points). Start directly with what the money pays for. Do not repeat the name or amount.`
 
-    console.log("[v0] Calling generateText with @ai-sdk/openai gpt-4o-mini")
-    console.log("[v0] API key present:", !!process.env.OPENAI_API_KEY)
-
     const { text } = await generateText({
       model: openai("gpt-4o-mini"),
       prompt,
       maxOutputTokens: 250,
     })
 
-    console.log("[v0] Got response text:", text?.substring(0, 100))
     return Response.json({ blurb: text })
   } catch (error) {
-    console.error("[v0] Error generating spending explanation:", error)
+    console.error("Error generating spending explanation:", error)
     return Response.json(
       { blurb: null, error: "Failed to generate explanation" },
       { status: 500 }

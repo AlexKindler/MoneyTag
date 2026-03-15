@@ -1,21 +1,37 @@
 import { NextResponse } from "next/server"
+import { getCurrentFiscalYear } from "@/lib/moneytag-data"
+import { rateLimit, getClientIp } from "@/lib/rate-limit"
+import { AgencyDetailResponseSchema, validateResponse } from "@/lib/schemas"
 
 const USASPENDING_BASE = "https://api.usaspending.gov/api/v2"
-
-function getCurrentFiscalYear(): string {
-  const now = new Date()
-  const month = now.getMonth()
-  const year = now.getFullYear()
-  return String(month >= 9 ? year + 1 : year)
-}
 
 export async function GET(
   request: Request,
   { params }: { params: Promise<{ code: string }> }
 ) {
+  const ip = getClientIp(request)
+  const { success, remaining } = rateLimit(ip)
+  if (!success) {
+    return NextResponse.json(
+      { error: "Too many requests. Please try again later." },
+      { status: 429, headers: { "X-RateLimit-Remaining": "0" } }
+    )
+  }
+
   const { code } = await params
+
+  // Validate the agency code: must be alphanumeric (toptier codes are short numeric strings)
+  if (!/^[A-Za-z0-9_-]{1,10}$/.test(code)) {
+    return NextResponse.json(
+      { error: "Invalid agency code" },
+      { status: 400 }
+    )
+  }
+
   const { searchParams } = new URL(request.url)
-  const fiscalYear = searchParams.get("fiscal_year") || getCurrentFiscalYear()
+  const rawFy = searchParams.get("fiscal_year") || String(getCurrentFiscalYear())
+  // Validate fiscal year is a 4-digit number
+  const fiscalYear = /^\d{4}$/.test(rawFy) ? rawFy : String(getCurrentFiscalYear())
 
   try {
     // Fetch agency overview, sub-agencies, and obligations by award category in parallel
@@ -43,12 +59,14 @@ export async function GET(
     const obligations = obligationsRes.ok ? await obligationsRes.json() : {}
     const budgetFunctions = budgetFunctionRes.ok ? await budgetFunctionRes.json() : { results: [] }
 
-    return NextResponse.json({
+    const responseData = {
       overview,
       sub_agencies: subAgencies,
       obligations_by_category: obligations,
       budget_functions: budgetFunctions,
-    })
+    }
+    validateResponse(AgencyDetailResponseSchema, responseData, `agency-detail-${code}`)
+    return NextResponse.json(responseData)
   } catch (error) {
     console.error(`Failed to fetch agency ${code}:`, error)
     return NextResponse.json(
