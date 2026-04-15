@@ -9,7 +9,7 @@ import {
   buildFederalAccountNodes,
 } from "@/lib/moneytag-data"
 import type { LedgerNode } from "@/lib/moneytag-data"
-import { useAgencyDetail, useFederalAccounts } from "@/hooks/use-spending-data"
+import { useAgencyDetail, useFederalAccounts, prefetchAgencyDetail } from "@/hooks/use-spending-data"
 import { getNodeIcon, getStatusStyle } from "./shared"
 import { FundingPathTooltip } from "./funding-tooltip"
 import { MoneyFlowConnector } from "./money-flow"
@@ -54,7 +54,7 @@ export const AgencyNode = React.memo(function AgencyNode({ node }: { node: Ledge
           onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setExpanded(!expanded) } }}
           className={`relative flex cursor-pointer items-center gap-3 border p-3 transition-all ${getStatusStyle(node.status)} ${hovered ? "border-primary/50" : ""}`}
           onClick={() => !isLoading && setExpanded(!expanded)}
-          onMouseEnter={() => setHovered(true)}
+          onMouseEnter={() => { setHovered(true); if (!expanded && node.toptierCode) prefetchAgencyDetail(node.toptierCode) }}
           onMouseLeave={() => setHovered(false)}
         >
           <div className="flex h-6 w-6 shrink-0 items-center justify-center font-mono text-[10px] text-muted-foreground">

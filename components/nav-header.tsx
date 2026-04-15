@@ -4,8 +4,9 @@ import { motion } from "framer-motion"
 import { Shield } from "lucide-react"
 import { useTheme } from "next-themes"
 import { useEffect, useState } from "react"
+import { CommandSearch } from "@/components/command-search"
 
-export type Screen = "mission" | "ledger"
+export type Screen = "mission" | "ledger" | "about"
 
 interface NavHeaderProps {
   activeScreen: Screen
@@ -53,6 +54,7 @@ export function NavHeader({ activeScreen, onNavigate }: NavHeaderProps) {
   const navItems = [
     { id: "mission" as const, label: "THE MISSION", number: "01" },
     { id: "ledger" as const, label: "THE LEDGER", number: "02" },
+    { id: "about" as const, label: "ABOUT", number: "03" },
   ]
 
   return (
@@ -91,6 +93,7 @@ export function NavHeader({ activeScreen, onNavigate }: NavHeaderProps) {
       </nav>
 
       <div className="flex items-center gap-3 font-mono text-[10px] text-muted-foreground">
+        <CommandSearch onNavigate={onNavigate} />
         <div className="flex items-center gap-1.5">
           <motion.div
             animate={{ opacity: [1, 0.3, 1] }}

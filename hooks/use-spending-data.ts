@@ -44,6 +44,15 @@ export function useFederalAccounts(toptierCode: string | null) {
   )
 }
 
+export function usePriorYearAgencies(sort = "budget_authority_amount", order = "desc") {
+  const fy = getCurrentFiscalYear() - 1
+  return useSWR<ToptierAgenciesResponse>(
+    `/api/spending/toptier?sort=${sort}&order=${order}&fiscal_year=${fy}`,
+    fetcher,
+    { ...defaultSwrConfig, dedupingInterval: 3_600_000 }
+  )
+}
+
 /**
  * Prefetch agency detail data into the SWR cache.
  * Call on hover/pointer-enter over an agency row to warm the cache
