@@ -93,7 +93,7 @@ export default function MoneyTagApp(): React.JSX.Element {
             <span>VIBE CODING HACKATHON 2026</span>
             <span className="hidden h-3 w-px bg-border md:block" />
             <a
-              href="https://api.usaspending.gov"
+              href="https://www.usaspending.gov"
               target="_blank"
               rel="noopener noreferrer"
               className="text-primary transition-colors hover:text-primary/80"

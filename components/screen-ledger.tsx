@@ -85,8 +85,8 @@ export function ScreenLedger() {
             <span className="font-bold text-foreground">What you{"'"}re looking at:</span>{" "}
             This is a real-time view of the entire U.S. federal budget for Fiscal Year {fy},
             sourced directly from the{" "}
-            <a href="https://api.usaspending.gov" target="_blank" rel="noopener noreferrer" className="text-primary underline">
-              USASpending.gov API
+            <a href="https://www.usaspending.gov" target="_blank" rel="noopener noreferrer" className="text-primary underline">
+              USASpending.gov
             </a>
             {" "}-- the official open data source published by the U.S. Department of the Treasury.
             The tree below maps how Congress{"'"} total budget authority flows from the Treasury (D0)
@@ -227,7 +227,7 @@ export function ScreenLedger() {
         <div className="mt-8 border-t border-border pt-4 font-mono text-[10px] text-muted-foreground">
           <span>Data source: </span>
           <a
-            href="https://api.usaspending.gov"
+            href="https://www.usaspending.gov"
             target="_blank"
             rel="noopener noreferrer"
             className="text-primary underline"

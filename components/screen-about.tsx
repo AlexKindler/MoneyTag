@@ -1,7 +1,7 @@
 "use client"
 
 import { motion } from "framer-motion"
-import { Shield, Database, Lock, Eye, FileText, Code, ExternalLink } from "lucide-react"
+import { Shield, Database, Lock, Eye, ExternalLink } from "lucide-react"
 
 const faqs = [
   {
