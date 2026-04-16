@@ -232,8 +232,8 @@ export function formatLargeCurrency(amount: number): string {
   return formatCurrency(amount)
 }
 
-function agencyUrl(code: string): string {
-  return `https://www.usaspending.gov/agency/${code}`
+function agencyUrl(slug: string): string {
+  return `https://www.usaspending.gov/agency/${slug}`
 }
 
 function federalAccountUrl(code: string): string {
@@ -286,7 +286,7 @@ export function buildToptierTree(agencies: ToptierAgency[]): LedgerNode {
     id: `agency-${agency.toptier_code}`,
     name: agency.agency_name,
     sourceCode: `${agency.abbreviation} / ${agency.toptier_code}`,
-    sourceUrl: agencyUrl(agency.toptier_code),
+    sourceUrl: agencyUrl(agency.agency_slug),
     amount: agency.budget_authority_amount,
     outlayAmount: agency.outlay_amount,
     depth: 1,

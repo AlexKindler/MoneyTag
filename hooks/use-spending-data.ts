@@ -3,6 +3,7 @@ import type {
   ToptierAgenciesResponse,
   AgencyDetailResponse,
   FederalAccountsResponse,
+  AgenciesOverviewResponse,
 } from "@/lib/moneytag-data"
 import { getCurrentFiscalYear } from "@/lib/moneytag-data"
 
@@ -41,6 +42,14 @@ export function useFederalAccounts(toptierCode: string | null) {
     toptierCode ? `/api/spending/agency/${toptierCode}/federal-accounts?fiscal_year=${fy}` : null,
     fetcher,
     defaultSwrConfig
+  )
+}
+
+export function useAgenciesOverview(fiscalYear: number) {
+  return useSWR<AgenciesOverviewResponse>(
+    `/api/spending/agencies?fiscal_year=${fiscalYear}&limit=100`,
+    fetcher,
+    { ...defaultSwrConfig, dedupingInterval: 3_600_000 }
   )
 }
 

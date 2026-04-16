@@ -3,7 +3,7 @@
 import { motion } from "framer-motion"
 import { ArrowRight, Lock, Tag, Terminal, Shield, ChevronDown, Loader2 } from "lucide-react"
 import { formatLargeCurrency, calculateLeakStats, getCurrentFiscalYear } from "@/lib/moneytag-data"
-import { useToptierAgencies } from "@/hooks/use-spending-data"
+import { useToptierAgencies, useAgenciesOverview } from "@/hooks/use-spending-data"
 import type { Screen } from "@/components/nav-header"
 
 export interface ScreenMissionProps {
@@ -203,8 +203,19 @@ function PipelineStep({ icon, label, description, delay }: { icon: React.ReactNo
   )
 }
 
+function formatDelta(current: number, previous: number): string | null {
+  if (!previous || previous === 0) return null
+  const pct = ((current - previous) / Math.abs(previous)) * 100
+  if (Math.abs(pct) < 0.1) return null
+  const sign = pct >= 0 ? "+" : ""
+  return `${sign}${pct.toFixed(1)}%`
+}
+
 function LiveStats() {
+  const fy = getCurrentFiscalYear()
   const { data, isLoading } = useToptierAgencies()
+  const { data: currentOverview } = useAgenciesOverview(fy)
+  const { data: priorOverview } = useAgenciesOverview(fy - 1)
   const stats = data ? calculateLeakStats(data.results) : null
 
   if (isLoading || !stats) {
@@ -316,11 +327,20 @@ function LiveStats() {
     ),
   }
 
+  // Year-over-year comparison using reporting agencies overview (supports fiscal_year)
+  const currentTotal = currentOverview?.results?.reduce((sum, a) => sum + a.current_total_budget_authority_amount, 0) ?? 0
+  const priorTotal = priorOverview?.results?.reduce((sum, a) => sum + a.current_total_budget_authority_amount, 0) ?? 0
+  const budgetDelta = priorTotal > 0 ? formatDelta(currentTotal, priorTotal) : null
+  const agencyDelta = priorOverview?.results ? formatDelta(
+    currentOverview?.results?.length ?? 0,
+    priorOverview.results.length
+  ) : null
+
   const statItems = [
-    { value: formatLargeCurrency(stats.totalBudget), label: "TOTAL BUDGET AUTHORITY", color: "text-primary", glow: "glow-green" },
-    { value: formatLargeCurrency(stats.totalObligated), label: "TOTAL OBLIGATED", color: "text-primary", glow: "glow-green" },
-    { value: formatLargeCurrency(stats.unobligated), label: "UNOBLIGATED FUNDS", color: "text-destructive", glow: "glow-red" },
-    { value: `${stats.agencyCount}`, label: "ACTIVE AGENCIES", color: "text-primary", glow: "glow-green" },
+    { value: formatLargeCurrency(stats.totalBudget), label: "TOTAL BUDGET AUTHORITY", color: "text-primary", glow: "glow-green", delta: budgetDelta },
+    { value: formatLargeCurrency(stats.totalObligated), label: "TOTAL OBLIGATED", color: "text-primary", glow: "glow-green", delta: null as string | null },
+    { value: formatLargeCurrency(stats.unobligated), label: "UNOBLIGATED FUNDS", color: "text-destructive", glow: "glow-red", delta: null as string | null },
+    { value: `${stats.agencyCount}`, label: "ACTIVE AGENCIES", color: "text-primary", glow: "glow-green", delta: agencyDelta },
   ]
 
   return (
@@ -338,6 +358,11 @@ function LiveStats() {
             {stat.value}
           </span>
           <span className="font-mono text-[9px] tracking-[0.2em] text-muted-foreground md:text-[10px]">{stat.label}</span>
+          {stat.delta && (
+            <span className={`font-mono text-[9px] ${stat.delta.startsWith("+") ? "text-primary" : "text-destructive"}`}>
+              {stat.delta} vs FY{fy - 1}
+            </span>
+          )}
           {miniCharts[stat.label]}
         </motion.div>
       ))}

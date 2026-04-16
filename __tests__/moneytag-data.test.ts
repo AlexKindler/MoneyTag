@@ -321,7 +321,7 @@ describe("buildToptierTree", () => {
     expect(child.depth).toBe(1)
     expect(child.parentTrail).toEqual(["U.S. Treasury"])
     expect(child.isExpandable).toBe(true)
-    expect(child.sourceUrl).toBe("https://www.usaspending.gov/agency/012")
+    expect(child.sourceUrl).toBe("https://www.usaspending.gov/agency/test-agency")
     expect(child.sourceCode).toBe("TST / 012")
     expect(child.percentOfParent).toBe(30) // 0.3 * 100
   })
