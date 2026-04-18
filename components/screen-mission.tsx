@@ -582,7 +582,8 @@ export function ScreenMission({ onNavigate }: ScreenMissionProps) {
           >
             <button
               onClick={() => onNavigate("ledger")}
-              className="group flex items-center gap-2 bg-primary px-6 py-3 font-mono text-xs font-bold tracking-wider text-primary-foreground transition-all hover:bg-primary/90"
+              className="group flex items-center gap-2 bg-primary px-6 py-3 font-mono text-xs font-bold tracking-wider text-primary-foreground transition-all hover:bg-[#00dd3a]"
+              style={{ boxShadow: "0 0 20px rgba(0,255,65,0.25)" }}
             >
               VIEW LIVE LEDGER
               <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
@@ -671,7 +672,8 @@ export function ScreenMission({ onNavigate }: ScreenMissionProps) {
           </p>
           <button
             onClick={() => onNavigate("ledger")}
-            className="group mt-4 flex items-center gap-2 bg-primary px-8 py-4 font-mono text-xs font-bold tracking-wider text-primary-foreground transition-all hover:bg-primary/90"
+            className="group mt-4 flex items-center gap-2 bg-primary px-8 py-4 font-mono text-xs font-bold tracking-wider text-primary-foreground transition-all hover:bg-[#00dd3a]"
+            style={{ boxShadow: "0 0 20px rgba(0,255,65,0.25)" }}
           >
             ENTER THE LEDGER
             <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />

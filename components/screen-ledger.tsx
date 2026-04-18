@@ -61,8 +61,8 @@ export function ScreenLedger() {
         {/* Header */}
         <div className="mb-6 flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
           <div>
-            <span className="font-mono text-[10px] tracking-[0.3em] text-primary">POWERED BY USASPENDING.GOV API</span>
-            <h2 className="mt-1 font-mono text-3xl font-bold text-foreground">The Live Ledger</h2>
+            <span className="font-mono text-[10px] tracking-[0.3em] text-primary">LIVE LEDGER · FY{fy}</span>
+            <h2 className="mt-1 font-mono text-3xl font-bold text-foreground">The Spending Hierarchy</h2>
           </div>
           <div className="flex flex-col items-start gap-1.5 md:items-end">
             <div className="flex items-center gap-4 font-mono text-[10px]">
@@ -175,7 +175,7 @@ export function ScreenLedger() {
         {/* Treasury root node */}
         {tree && (
           <div className="space-y-1">
-            <div className="flex items-center gap-3 border border-primary/40 bg-primary/5 p-3">
+            <div className="flex items-center gap-3 border border-primary/40 bg-primary/5 p-3" style={{ boxShadow: "0 0 12px rgba(0,255,65,0.18)" }}>
               <div className="flex h-6 w-6 items-center justify-center font-mono text-[10px] text-primary">D0</div>
               <div className="flex h-8 w-8 items-center justify-center border border-primary text-primary pulse-green">
                 <Landmark className="h-5 w-5" />
