@@ -1,7 +1,34 @@
 "use client"
 
 import { motion } from "framer-motion"
-import { Shield, Database, Lock, Eye, ExternalLink } from "lucide-react"
+import { ExternalLink } from "lucide-react"
+
+const sections = [
+  {
+    kicker: "OUR MISSION",
+    title: "Make every federal dollar traceable.",
+    body: "MoneyTag exists because the public deserves to see where their tax dollars go. Not quarterly. Not annually. Right now. We ingest the entire USASpending.gov dataset and expose it as a live chain of custody — from the U.S. Treasury, through each toptier agency, down to the final expenditure.",
+  },
+  {
+    kicker: "METHODOLOGY",
+    title: "Hard sources. Zero narrative.",
+    body: "Every number on this site is pulled directly from usaspending.gov APIs. We do not edit, editorialize, or re-categorize. Obligated vs unobligated splits are calculated from budget authority amounts reported by each toptier agency. Status flags (VERIFIED / PENDING / FLAGGED) are derived from outlay-to-obligation ratios.",
+  },
+  {
+    kicker: "WHAT TRIGGERS A FLAG",
+    title: "Administrative overhead above threshold.",
+    body: "MoneyTag flags budget functions where the category is classified as administrative overhead and the amount exceeds 5% of an agency's total obligations. A flag is not an accusation. It is a signal for the reader to look closer.",
+  },
+]
+
+const facts = [
+  { k: "DATA SOURCE", v: "usaspending.gov" },
+  { k: "UPDATE CADENCE", v: "Daily" },
+  { k: "AGENCIES TRACKED", v: "25 toptier" },
+  { k: "FISCAL YEAR", v: "2026" },
+  { k: "LICENSE", v: "MIT · open-source" },
+  { k: "BUILT FOR", v: "Vibe Coding Hackathon" },
+]
 
 const faqs = [
   {
@@ -13,7 +40,7 @@ const faqs = [
     a: "Unobligated funds are money Congress has authorized but agencies haven't yet committed to specific contracts, grants, or payments. High unobligated balances can indicate slow execution or excess appropriation.",
   },
   {
-    q: "What do the depth levels (D0-D3) mean?",
+    q: "What do the depth levels (D0–D3) mean?",
     a: "D0 is the U.S. Treasury (the source of all funds). D1 is a top-level federal agency (e.g., DOD, HHS). D2 is a budget function or federal account within that agency. D3 is a sub-function or treasury account — the most granular level of tracking.",
   },
   {
@@ -30,87 +57,77 @@ const faqs = [
   },
 ]
 
-const methodologySteps = [
-  {
-    icon: <Database className="h-5 w-5" />,
-    title: "DATA INGESTION",
-    description: "Live queries to USASpending.gov API v2 for toptier agencies, budget functions, federal accounts, and treasury accounts.",
-  },
-  {
-    icon: <Lock className="h-5 w-5" />,
-    title: "VALIDATION",
-    description: "Every API response is validated against Zod schemas. Malformed data triggers warnings but never crashes the UI.",
-  },
-  {
-    icon: <Eye className="h-5 w-5" />,
-    title: "TREE CONSTRUCTION",
-    description: "Raw API data is transformed into a 4-level spending tree: Treasury → Agency → Budget Function/Account → Sub-function/Treasury Account.",
-  },
-  {
-    icon: <Shield className="h-5 w-5" />,
-    title: "STATUS CLASSIFICATION",
-    description: "Nodes are classified as Verified (outlays recorded), Pending (obligations but no outlays), or Flagged (admin overhead categories).",
-  },
-]
-
 export function ScreenAbout() {
   return (
-    <div className="relative min-h-screen">
-      <div className="grid-bg absolute inset-0" />
+    <div className="relative px-6 py-20">
+      <div
+        className="pointer-events-none absolute inset-0"
+        style={{
+          backgroundImage:
+            "linear-gradient(rgba(0,255,65,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(0,255,65,0.04) 1px, transparent 1px)",
+          backgroundSize: "30px 30px",
+        }}
+      />
 
-      <div className="relative z-10 mx-auto max-w-4xl px-6 py-16">
-        {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="mb-16 text-center"
-        >
-          <span className="font-mono text-[10px] tracking-[0.3em] text-primary">SYSTEM DOCUMENTATION</span>
-          <h1 className="mt-3 font-mono text-4xl font-bold text-foreground">About MoneyTag</h1>
-          <p className="mx-auto mt-4 max-w-xl font-mono text-sm leading-relaxed text-muted-foreground">
-            A federal spending transparency tool that traces every dollar from appropriation
-            to expenditure using live Treasury data.
-          </p>
+      <div className="relative z-10 mx-auto max-w-4xl">
+        {/* Hero */}
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
+          <span className="font-mono text-[10px] tracking-[0.3em] text-primary">03 · ABOUT</span>
+          <h1 className="mt-2 font-mono text-5xl font-bold leading-tight text-foreground">
+            We don&apos;t ask for permission.
+            <br />
+            <span className="text-primary" style={{ textShadow: "0 0 10px rgba(0,255,65,0.4)" }}>
+              We demand proof.
+            </span>
+          </h1>
         </motion.div>
 
-        {/* Methodology */}
-        <motion.section
+        {/* Facts grid */}
+        <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 0.2 }}
-          className="mb-16"
+          transition={{ delay: 0.15 }}
+          className="mt-14 grid grid-cols-2 gap-px bg-border md:grid-cols-3"
         >
-          <h2 className="mb-8 font-mono text-xs tracking-[0.3em] text-primary">METHODOLOGY</h2>
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-            {methodologySteps.map((step, i) => (
-              <motion.div
-                key={step.title}
-                initial={{ opacity: 0, y: 15 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.3 + i * 0.1 }}
-                className="border border-border bg-card p-5"
-              >
-                <div className="mb-3 flex items-center gap-3">
-                  <div className="flex h-9 w-9 items-center justify-center border border-primary/30 text-primary">
-                    {step.icon}
-                  </div>
-                  <h3 className="font-mono text-xs font-bold tracking-wider text-foreground">{step.title}</h3>
-                </div>
-                <p className="font-mono text-[11px] leading-relaxed text-muted-foreground">{step.description}</p>
-              </motion.div>
-            ))}
-          </div>
-        </motion.section>
+          {facts.map((f) => (
+            <div key={f.k} className="flex flex-col gap-1 bg-card p-5">
+              <span className="font-mono text-[9px] tracking-[0.2em] text-muted-foreground">{f.k}</span>
+              <span className="font-mono text-sm font-bold text-primary">{f.v}</span>
+            </div>
+          ))}
+        </motion.div>
 
-        {/* Tech Stack */}
-        <motion.section
+        {/* Content sections */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.25 }}
+          className="mt-14 flex flex-col gap-10"
+        >
+          {sections.map((s, i) => (
+            <motion.div
+              key={s.kicker}
+              initial={{ opacity: 0, x: -10 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.3 + i * 0.1 }}
+              className="border-l border-primary/40 pl-6"
+            >
+              <span className="font-mono text-[10px] tracking-[0.3em] text-primary">{s.kicker}</span>
+              <h2 className="mt-2 font-mono text-2xl font-bold text-foreground">{s.title}</h2>
+              <p className="mt-3 max-w-2xl font-mono text-sm leading-relaxed text-muted-foreground">{s.body}</p>
+            </motion.div>
+          ))}
+        </motion.div>
+
+        {/* Tech stack */}
+        <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.5 }}
-          className="mb-16"
+          className="mt-14"
         >
-          <h2 className="mb-6 font-mono text-xs tracking-[0.3em] text-primary">TECH STACK</h2>
-          <div className="grid grid-cols-2 gap-px bg-border md:grid-cols-4">
+          <span className="font-mono text-[10px] tracking-[0.3em] text-primary">TECH STACK</span>
+          <div className="mt-4 grid grid-cols-2 gap-px bg-border md:grid-cols-4">
             {[
               { label: "FRAMEWORK", value: "Next.js 16" },
               { label: "LANGUAGE", value: "TypeScript" },
@@ -127,23 +144,23 @@ export function ScreenAbout() {
               </div>
             ))}
           </div>
-        </motion.section>
+        </motion.div>
 
         {/* FAQ */}
-        <motion.section
+        <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.6 }}
-          className="mb-16"
+          className="mt-14"
         >
-          <h2 className="mb-8 font-mono text-xs tracking-[0.3em] text-primary">FREQUENTLY ASKED QUESTIONS</h2>
-          <div className="space-y-4">
+          <span className="font-mono text-[10px] tracking-[0.3em] text-primary">FREQUENTLY ASKED QUESTIONS</span>
+          <div className="mt-4 space-y-3">
             {faqs.map((faq, i) => (
               <motion.div
                 key={i}
-                initial={{ opacity: 0, y: 10 }}
+                initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.7 + i * 0.08 }}
+                transition={{ delay: 0.7 + i * 0.07 }}
                 className="border border-border bg-card p-5"
               >
                 <h3 className="mb-2 font-mono text-xs font-bold text-foreground">{faq.q}</h3>
@@ -151,34 +168,28 @@ export function ScreenAbout() {
               </motion.div>
             ))}
           </div>
-        </motion.section>
+        </motion.div>
 
-        {/* Links */}
-        <motion.section
+        {/* Learn more card */}
+        <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.9 }}
+          className="mt-14 flex flex-col items-start justify-between gap-4 border border-border bg-card p-6 md:flex-row md:items-center"
         >
-          <h2 className="mb-6 font-mono text-xs tracking-[0.3em] text-primary">DATA SOURCES & REFERENCES</h2>
-          <div className="space-y-2">
-            {[
-              { label: "USASpending.gov API Documentation", url: "https://api.usaspending.gov" },
-              { label: "USASpending.gov Explorer", url: "https://www.usaspending.gov/explorer" },
-              { label: "Congressional Budget Office", url: "https://www.cbo.gov" },
-            ].map((link) => (
-              <a
-                key={link.url}
-                href={link.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-2 border border-border bg-card px-4 py-3 font-mono text-xs text-primary transition-colors hover:border-primary/50 hover:bg-primary/5"
-              >
-                <ExternalLink className="h-3.5 w-3.5 shrink-0" />
-                {link.label}
-              </a>
-            ))}
+          <div className="flex flex-col gap-1">
+            <span className="font-mono text-[10px] tracking-[0.3em] text-muted-foreground">LEARN MORE</span>
+            <span className="font-mono text-base font-bold text-foreground">View the raw USASpending.gov data</span>
           </div>
-        </motion.section>
+          <a
+            href="https://www.usaspending.gov"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-2 border border-primary/40 px-4 py-2 font-mono text-xs tracking-wider text-primary transition-colors hover:bg-primary/10"
+          >
+            OPEN DATASET <ExternalLink className="h-3 w-3" />
+          </a>
+        </motion.div>
       </div>
     </div>
   )
